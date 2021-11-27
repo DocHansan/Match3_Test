@@ -7,7 +7,7 @@ namespace Match3_Test.Models
     class Grid
     {
         public GridCell[,] grid;
-        public Grid(int Field_size, int Cell_size, int Types_of_cells)
+        public void Create_Grid(int Field_size, int Cell_size, int Types_of_cells)
         {
             grid = new GridCell[Field_size + 2, Field_size + 2];
             for (int i = 1; i <= Field_size; i++)
