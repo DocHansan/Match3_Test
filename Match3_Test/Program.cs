@@ -46,7 +46,7 @@ namespace Match3_Test
         private static bool isMoving;
         private static int click = 0;
         private static int Game_fps = 60;
-        private static int Game_time = 60;
+        private static int Game_time = 4;
         private static int Game_window = 0;
         private static Vector2i pos;
 
@@ -153,7 +153,7 @@ namespace Match3_Test
                         if (Bounds_Check(pos, Button_pos, Button_pos + Button_size))
                         {
                             Game_window = 1;
-                            TimerCallback Game_timer = new TimerCallback(Count);
+                            TimerCallback Game_timer = new TimerCallback(End_game);
                             Timer timer = new Timer(Game_timer, null, Game_time * 1000, 0);
                             Grid_main.Create_Grid(Field_size, Cell_size, Types_of_cells);
 
@@ -283,7 +283,7 @@ namespace Match3_Test
                             texture.Position = new Vector2f(p.x, p.y);
                             app.Draw(texture);
                         }
-                    Time_remaining.DisplayedString = new string(Convert.ToString(Game_time - (int)Time_Checker.ElapsedMilliseconds / 1000));
+                    Time_remaining.DisplayedString = (Game_time - (int)Time_Checker.ElapsedMilliseconds / 1000).ToString();
                     app.Draw(Time_remaining);
                 }
                 
@@ -291,7 +291,7 @@ namespace Match3_Test
             }
         }
 
-        private static void Count(object state)
+        private static void End_game(object state)
         {
             click = 0;
             Game_window = 2;
