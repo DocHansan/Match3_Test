@@ -73,11 +73,13 @@ namespace Match3_Test
             Texture Play_button = new Texture("./Content/images/Play_button.png");
             Texture Ok_button = new Texture("./Content/images/Ok_button.png");
             Texture Game_over = new Texture("./Content/images/Game_over.png");
+            Texture Discharge = new Texture("./Content/images/Discharge.png");
 
             Sprite texture = new Sprite(t1);
             Sprite Play_button_texture = new Sprite(Play_button);
             Sprite Ok_button_texture = new Sprite(Ok_button);
             Sprite Game_over_texture = new Sprite(Game_over);
+            Sprite Discharge_texture = new Sprite(Discharge);
 
             Font Outfit_light_font = new Font("./Content/Fonts/Outfit-Light.ttf");
             Text Time_remaining = new Text("", Outfit_light_font, Font_size);
@@ -186,6 +188,9 @@ namespace Match3_Test
                     {
                         x0 = Program.pos.X / Cell_size;
                         y0 = Program.pos.Y / Cell_size;
+
+                        Discharge_texture.Position = new Vector2f(x0 * Cell_size, y0 * Cell_size);
+                        app.Draw(Discharge_texture);
                     }
                     if (click == 2)
                     {
@@ -275,7 +280,6 @@ namespace Match3_Test
                             GridCell p = new GridCell();
                             p = Grid_main[i, j];
                             texture.TextureRect = new IntRect((p.kind - 1) * Cell_size, 0, Cell_size, Cell_size);
-                            texture.Color = new Color(255, 255, 255, p.alpha);
                             texture.Position = new Vector2f(p.x, p.y);
                             app.Draw(texture);
                         }
