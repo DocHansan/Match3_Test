@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Match3_Test.Models;
@@ -27,9 +28,9 @@ namespace Match3_Test
         static bool Bounds_Check(Vector2i Mouse_pos, Vector2i Start_bounds, Vector2i End_bounds)
         {
             bool isInBounds = false;
-            Console.Write(Start_bounds);
-            Console.Write(Mouse_pos);
-            Console.WriteLine(End_bounds);
+            //Console.Write(Start_bounds);
+            //Console.Write(Mouse_pos);
+            //Console.WriteLine(End_bounds);
             if (Start_bounds.X < Mouse_pos.X &&
                 Mouse_pos.X < End_bounds.X && 
                 Start_bounds.Y < Mouse_pos.Y &&
@@ -54,7 +55,12 @@ namespace Match3_Test
         static void Main(string[] args)
         {
             uint width = 600,
-                height = 600;
+                height = 600,
+                Font_size = 24;
+
+            int Field_size = 8,
+                Cell_size = 60,
+                Types_of_cells = 5;
 
             app = new RenderWindow(new VideoMode(width, height), "Match-3 Game");
             app.SetFramerateLimit((uint) Game_fps);
@@ -65,23 +71,29 @@ namespace Match3_Test
 
             Texture t1 = new Texture("./Content/images/1.png");
             Texture Play_button = new Texture("./Content/images/Play_button.png");
-            Texture Game_over_button = new Texture("./Content/images/Game_over_button.png");
+            Texture Ok_button = new Texture("./Content/images/Ok_button.png");
+            Texture Game_over = new Texture("./Content/images/Game_over.png");
 
             Sprite texture = new Sprite(t1);
             Sprite Play_button_texture = new Sprite(Play_button);
-            Sprite Game_over_button_texture = new Sprite(Game_over_button);
+            Sprite Ok_button_texture = new Sprite(Ok_button);
+            Sprite Game_over_texture = new Sprite(Game_over);
 
-            int Field_size = 8,
-                Cell_size = 60,
-                Types_of_cells = 5;
+            Font Outfit_light_font = new Font("./Content/Fonts/Outfit-Light.ttf");
+            Text Time_remaining = new Text("", Outfit_light_font, Font_size);
+            Time_remaining.FillColor = new Color(Color.Black);
+            Time_remaining.Position = new Vector2f((1 + Field_size) * Cell_size, Cell_size -  2 * Font_size);
 
-            Console.WriteLine(Play_button_texture.GetLocalBounds());
+
+            //Console.WriteLine(Play_button_texture.GetLocalBounds());
 
             Vector2i Button_pos = new Vector2i(150, 200);
             Vector2i Button_size = new Vector2i((int) Play_button_texture.GetLocalBounds().Width, (int) Play_button_texture.GetLocalBounds().Height);
 
-            Grid Grid_main = new Grid(Field_size, Cell_size, Types_of_cells);
-            
+            Grid Grid_main = new Grid();
+
+            Stopwatch Time_Checker = new Stopwatch();
+
 
 
             //for (int i = 1; i <= Field_size; i++)
@@ -122,7 +134,6 @@ namespace Match3_Test
                 x = 0,
                 y = 0;
 
-
             while (app.IsOpen)
             {
                 app.DispatchEvents();
@@ -141,8 +152,10 @@ namespace Match3_Test
                         {
                             Game_window = 1;
                             TimerCallback Game_timer = new TimerCallback(Count);
-                            // создаем таймер
                             Timer timer = new Timer(Game_timer, null, Game_time * 1000, 0);
+                            Grid_main.Create_Grid(Field_size, Cell_size, Types_of_cells);
+
+                            Time_Checker.Restart();
                         };
                         click = 0;
                     }
@@ -150,8 +163,10 @@ namespace Match3_Test
                 }
                 if (Game_window == 2)
                 {
-                    Game_over_button_texture.Position = (Vector2f)Button_pos;
-                    app.Draw(Game_over_button_texture);
+                    Ok_button_texture.Position = (Vector2f)Button_pos;
+                    Game_over_texture.Position = ((Vector2f)Button_pos) + new Vector2f(0, -80);
+                    app.Draw(Ok_button_texture);
+                    app.Draw(Game_over_texture);
                     if (click == 1)
                     {
                         //Console.WriteLine(Bounds_Check(pos, Button_pos, Button_size));
@@ -166,7 +181,6 @@ namespace Match3_Test
 
                 if (Game_window == 1)
                 {
-                    Console.WriteLine(Game_time);
                     // mouse click
                     if (click == 1)
                     {
@@ -265,7 +279,10 @@ namespace Match3_Test
                             texture.Position = new Vector2f(p.x, p.y);
                             app.Draw(texture);
                         }
+                    Time_remaining.DisplayedString = new string(Convert.ToString(Game_time - (int)Time_Checker.ElapsedMilliseconds / 1000));
+                    app.Draw(Time_remaining);
                 }
+                
                 app.Display();
             }
         }
