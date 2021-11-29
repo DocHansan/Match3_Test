@@ -48,20 +48,42 @@ namespace Match3_Test
             return isEqual;
         }
 
+        static void Activate_Bonus(GridCell[,] grid, int x, int y)
+        {
+            if (grid[y, x].kind == Bomb_type)
+            {
+                grid[y, x].kind = 0;
+                Console.WriteLine("Activate_Bonus");
+                for (int i = y - Bomb_radius; i <= y + Bomb_radius; i++)
+                    for (int j = x - Bomb_radius; j <= x + Bomb_radius; j++)
+                    {
+                        grid[i, j].match++;
+                        if (grid[i, j].kind > Types_of_cells + 1)
+                        {
+                            Activate_Bonus(grid, i, j);
+                        }
+                        
+                    }
+            }
+        }
+
         static RenderWindow app;
         private static bool isSwap;
         private static bool isMoving;
+        private static bool isNeedBonusCheck;
         private static int click = 0;
         private static readonly int Game_fps = 60;
-        private static readonly int Game_time = 60;
+        private static readonly int Game_time = 600;
         private static int Game_window = 0;
         private static int Game_score = 0;
         private static Vector2i pos;
         private static int score;
         private static readonly int Field_size = 8;
+        private static readonly int Moving_animation_speed = 6;
         private static readonly int Cell_size = 60;
         private static readonly int Types_of_cells = 5;
         private static readonly int Bomb_type = Types_of_cells + 2;
+        private static readonly int Bomb_radius = 1;
 
         public static int Bomb_score;
 
@@ -222,6 +244,9 @@ namespace Match3_Test
 
                         Discharge_texture.Position = new Vector2f(x0 * Cell_size, y0 * Cell_size);
                         app.Draw(Discharge_texture);
+
+                        if (Grid_main[y0, x0].kind > Types_of_cells + 1)
+                            isNeedBonusCheck = true;
                     }
                     if (click == 2)
                     {
@@ -232,6 +257,9 @@ namespace Match3_Test
                             Swap(Grid_main[y0, x0], Grid_main[y, x], Grid_main.grid);
                             isSwap = true;
                             click = 0;
+
+                            if (Grid_main[y, x].kind > Types_of_cells + 1)
+                                isNeedBonusCheck = true;
                         }
                         else click = 1;
                     }
@@ -242,19 +270,22 @@ namespace Match3_Test
                         for (int i = 1; i <= Field_size; i++)
                             for (int j = 1; j <= Field_size; j++)
                             {
-                                if (Grid_main[i, j].kind == Grid_main[i + 1, j].kind)
-                                    if (Grid_main[i, j].kind == Grid_main[i - 1, j].kind)
-                                        for (int n = -1; n <= 1; n++)
-                                        {
-                                            Grid_main.grid[i + n, j].match++;
-                                        }
+                                if (Grid_main[i, j].kind <= Types_of_cells + 1)
+                                {
+                                    if (Grid_main[i, j].kind == Grid_main[i + 1, j].kind)
+                                        if (Grid_main[i, j].kind == Grid_main[i - 1, j].kind)
+                                            for (int n = -1; n <= 1; n++)
+                                            {
+                                                Grid_main.grid[i + n, j].match++;
+                                            }
 
-                                if (Grid_main[i, j].kind == Grid_main[i, j + 1].kind)
-                                    if (Grid_main[i, j].kind == Grid_main[i, j - 1].kind)
-                                        for (int n = -1; n <= 1; n++)
-                                        {
-                                            Grid_main.grid[i, j + n].match++;
-                                        }
+                                    if (Grid_main[i, j].kind == Grid_main[i, j + 1].kind)
+                                        if (Grid_main[i, j].kind == Grid_main[i, j - 1].kind)
+                                            for (int n = -1; n <= 1; n++)
+                                            {
+                                                Grid_main.grid[i, j + n].match++;
+                                            }
+                                }
                             }
                         
                         //Upping for bomb
@@ -299,22 +330,7 @@ namespace Match3_Test
                             }
                         
                     }
-                    /*
-                    // Bomb filling
-                    if (!isMoving)
-                    {
-                        for (int i = 1; i <= Field_size; i++)
-                            for (int j = 1; j <= Field_size; j++)
-                            {
-                                if (Grid_main[i, j].match >= 3)
-                                {
-                                    Grid_main.grid[i, j].match = 0;
-                                    Game_score++;
-                                    Grid_main.grid[i, j].kind = Bomb_type;
-                                }
-                            }
-                    }
-                    */
+
                     //Moving animation
                     isMoving = false;
                     for (int i = 1; i <= Field_size; i++)
@@ -323,7 +339,7 @@ namespace Match3_Test
                             ref GridCell p = ref Grid_main.grid[i, j];
                             int dx = 0,
                                 dy = 0;
-                            for (int n = 0; n < 4; n++)   // 4 - speed
+                            for (int n = 0; n < Moving_animation_speed; n++)
                             {
                                 dx = p.x - p.column * Cell_size;
                                 dy = p.y - p.row * Cell_size;
@@ -337,7 +353,6 @@ namespace Match3_Test
                     // Bomb filling
                     if (!isMoving)
                     {
-                        Bomb_score = 0;
                         for (int i = 1; i <= Field_size; i++)
                             for (int j = 1; j <= Field_size; j++)
                             {
@@ -360,6 +375,14 @@ namespace Match3_Test
                                         Grid_main.grid[i, j].alpha -= 10; isMoving = true;
                                     }
 
+                    // Bonus activating
+                    if (isNeedBonusCheck && !isMoving && isSwap)
+                    {
+                        Activate_Bonus(Grid_main.grid, x0, y0);
+                        Activate_Bonus(Grid_main.grid, x, y);
+                        isNeedBonusCheck = false;
+                    }
+
                     //Get score
                     if (!isMoving)
                     {
@@ -371,15 +394,15 @@ namespace Match3_Test
                                     score++;
                                     Game_score++;
                                     Game_score += Bomb_score;
+                                    Bomb_score = 0;
                                 }
                     }
-
-                    
 
                     //Second swap if no match
                     if (isSwap && !isMoving)
                     {
-                        if (score == 0) Swap(Grid_main[y0, x0], Grid_main[y, x], Grid_main.grid);
+                        if (score == 0)
+                            Swap(Grid_main[y0, x0], Grid_main[y, x], Grid_main.grid);
                         for (int i = 1; i <= Field_size; i++)
                         {
                             for (int j = 1; j <= Field_size; j++)
