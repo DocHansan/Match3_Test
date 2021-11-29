@@ -114,6 +114,14 @@ namespace Match3_Test
                     Create_Line_Bonus(grid, x, y, Line_horizontal_type);
         }
 
+        static void Check_Three_In_Line(GridCell[,] grid, int i, int j, int i1, int j1)
+        {
+            for (int n = -1; n <= 1; n++)
+            {
+                grid[i + i1 * n, j + j1 * n].match++;
+            }
+        }
+
         static RenderWindow app;
         private static bool isSwap;
         private static bool isMoving;
@@ -335,17 +343,21 @@ namespace Match3_Test
                                 {
                                     if (Compare_Elements_Kind(Grid_main.grid, i, j, i + 1, j))
                                         if (Compare_Elements_Kind(Grid_main.grid, i, j, i - 1, j))
+                                            Check_Three_In_Line(Grid_main.grid, i, j, 1, 0);
+                                    /*
                                             for (int n = -1; n <= 1; n++)
                                             {
                                                 Grid_main.grid[i + n, j].match++;
-                                            }
+                                            }*/
 
                                     if (Compare_Elements_Kind(Grid_main.grid, i, j, i, j + 1))
                                         if (Compare_Elements_Kind(Grid_main.grid, i, j, i, j - 1))
+                                            Check_Three_In_Line(Grid_main.grid, i, j, 0, 1);
+                                                /*
                                             for (int n = -1; n <= 1; n++)
                                             {
                                                 Grid_main.grid[i, j + n].match++;
-                                            }
+                                            }*/
                                 }
                             }
 
