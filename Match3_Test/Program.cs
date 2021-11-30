@@ -54,19 +54,42 @@ namespace Match3_Test
             Console.WriteLine();
             if (grid[x, y].kind == Bomb_type)
             {
-                grid[x, y].kind = new Random().Next(Types_of_cells) + 1;
-                Console.WriteLine("Activate_Bonus");
-                for (int i = x - Bomb_radius; i <= x + Bomb_radius; i++)
-                    for (int j = y - Bomb_radius; j <= y + Bomb_radius; j++)
-                    {
-                        if (grid[i, j].match == 0)
-                            grid[i, j].match++;
-                        if (grid[i, j].kind > Types_of_cells + 1)
+                if (grid[x, y].isNeed_bonus_activation)
+                {
+                    grid[x, y].isNeed_bonus_activation = false;
+                    //grid[x, y].kind = new Random().Next(Types_of_cells) + 1;
+                    for (int i = x - Bomb_radius; i <= x + Bomb_radius; i++)
+                        for (int j = y - Bomb_radius; j <= y + Bomb_radius; j++)
                         {
-                            Activate_Bonus(grid, i, j);
-                        }
+                            if (grid[i, j].match == 0)
+                                grid[i, j].match++;
+                            if (grid[i, j].kind > Types_of_cells + 1)
+                            {
+                                Activate_Bonus(grid, i, j);
+                            }
 
-                    }
+                        }
+                }
+            }
+            if (grid[x, y].kind == Line_horizontal_type)
+            {
+                if (grid[x, y].isNeed_bonus_activation)
+                {
+                    grid[x, y].isNeed_bonus_activation = false;
+                    //grid[x, y].kind = new Random().Next(Types_of_cells) + 1;
+                    Destroy_Line_Bonus(grid, x, y, 0, 1, y, Field_size + 1);
+                    Destroy_Line_Bonus(grid, x, y, 0, -1, y, 0);
+                }
+            }
+            if (grid[x, y].kind == Line_vertical_type)
+            {
+                if (grid[x, y].isNeed_bonus_activation)
+                {
+                    grid[x, y].isNeed_bonus_activation = false;
+                    //grid[x, y].kind = new Random().Next(Types_of_cells) + 1;
+                    Destroy_Line_Bonus(grid, x, y, 1, 0, x, Field_size + 1);
+                    Destroy_Line_Bonus(grid, x, y, -1, 0, x, 0);
+                }
             }
         }
 
@@ -91,6 +114,7 @@ namespace Match3_Test
         static void Create_Line_Bonus(GridCell[,] grid, int i, int j, int line_bonus_type)
         {
             grid[i, j].match = 0;
+            grid[i, j].isNeed_bonus_activation = true;
             Bonus_score++;
             grid[i, j].kind = line_bonus_type;
         }
@@ -122,6 +146,19 @@ namespace Match3_Test
             }
         }
 
+        static void Destroy_Line_Bonus(GridCell[,] grid, int x, int y, int x1, int y1, int start_index, int len)
+        {
+            for (int i = start_index; i != len; i += x1 + y1)
+            {
+                if (grid[x1 == 0 ? x : i, y1 == 0 ? y : i].match == 0)
+                    grid[x1 == 0 ? x : i, y1 == 0 ? y : i].match++;
+                if (grid[x1 == 0 ? x : i, y1 == 0 ? y : i].kind > Types_of_cells + 1)
+                {
+                    Activate_Bonus(grid, x1 == 0 ? x : i, y1 == 0 ? y : i);
+                }
+            }
+        }
+
         static RenderWindow app;
         private static bool isSwap;
         private static bool isMoving;
@@ -135,6 +172,7 @@ namespace Match3_Test
         private static int score;
         private static readonly int Field_size = 8;
         private static readonly int Moving_animation_speed = 6;
+        private static readonly byte Deleting_animation_speed = 5;
         private static readonly int Cell_size = 60;
         private static readonly int Types_of_cells = 5;
         private static readonly int Bomb_type = Types_of_cells + 2;
@@ -175,9 +213,6 @@ namespace Match3_Test
             Sprite Line_bonus_horizontal_texture = new Sprite(Line_bonus);
             Sprite Line_bonus_vertical_texture = new Sprite(Line_bonus);
 
-            //Line_bonus_vertical_texture.Transform.TransformPoint(Line_bonus_vertical_texture.GetLocalBounds().Width / 2, Line_bonus_vertical_texture.GetLocalBounds().Height / 2);
-            Console.WriteLine(Line_bonus_vertical_texture.GetLocalBounds().Width);
-            Console.WriteLine(Line_bonus_vertical_texture.GetLocalBounds().Height);
             Line_bonus_vertical_texture.Origin = new Vector2f(0, Line_bonus_vertical_texture.GetLocalBounds().Height);
             Line_bonus_vertical_texture.Rotation = 90.0f;
             
@@ -417,6 +452,7 @@ namespace Match3_Test
                                 if (Grid_main[i, j].match >= 3)
                                 {
                                     Grid_main.grid[i, j].match = 0;
+                                    Grid_main.grid[i, j].isNeed_bonus_activation = true;
                                     Bonus_score++;
                                     Grid_main.grid[i, j].kind = Bomb_type;
                                 }
@@ -456,9 +492,9 @@ namespace Match3_Test
                         for (int i = 1; i <= Field_size; i++)
                             for (int j = 1; j <= Field_size; j++)
                                 if (Grid_main[i, j].match > 0)
-                                    if (Grid_main[i, j].alpha > 10)
+                                    if (Grid_main[i, j].alpha > Deleting_animation_speed)
                                     {
-                                        Grid_main.grid[i, j].alpha -= 10; isMoving = true;
+                                        Grid_main.grid[i, j].alpha -= Deleting_animation_speed; isMoving = true;
                                     }
 
                     //Get score

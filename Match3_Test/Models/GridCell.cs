@@ -13,5 +13,6 @@ namespace Match3_Test.Models
             kind,
             match;
         public byte alpha;
+        public bool isNeed_bonus_activation;
     }
 }
