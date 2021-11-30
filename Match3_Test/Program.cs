@@ -50,46 +50,42 @@ namespace Match3_Test
 
         static void Activate_Bonus(GridCell[,] grid, int x, int y)
         {
-            Console.WriteLine(y.ToString() + " " + x.ToString());
-            Console.WriteLine();
-            if (grid[x, y].kind == Bomb_type)
+            if (!grid[x, y].isNeed_bonus_activation)
+                return;
+            switch (grid[x, y].kind)
             {
-                if (grid[x, y].isNeed_bonus_activation)
-                {
-                    grid[x, y].isNeed_bonus_activation = false;
-                    //grid[x, y].kind = new Random().Next(Types_of_cells) + 1;
-                    for (int i = x - Bomb_radius; i <= x + Bomb_radius; i++)
-                        for (int j = y - Bomb_radius; j <= y + Bomb_radius; j++)
-                        {
-                            if (grid[i, j].match == 0)
-                                grid[i, j].match++;
-                            if (grid[i, j].kind > Types_of_cells + 1)
+                case Bomb_type:
+                    {
+                        grid[x, y].isNeed_bonus_activation = false;
+                        //grid[x, y].kind = new Random().Next(Types_of_cells) + 1;
+                        for (int i = x - Bomb_radius; i <= x + Bomb_radius; i++)
+                            for (int j = y - Bomb_radius; j <= y + Bomb_radius; j++)
                             {
-                                Activate_Bonus(grid, i, j);
+                                if (grid[i, j].match == 0)
+                                    grid[i, j].match++;
+                                if (grid[i, j].kind > Types_of_cells + 1)
+                                {
+                                    Activate_Bonus(grid, i, j);
+                                }
                             }
-
-                        }
-                }
-            }
-            if (grid[x, y].kind == Line_horizontal_type)
-            {
-                if (grid[x, y].isNeed_bonus_activation)
-                {
-                    grid[x, y].isNeed_bonus_activation = false;
-                    //grid[x, y].kind = new Random().Next(Types_of_cells) + 1;
-                    Destroy_Line_Bonus(grid, x, y, 0, 1, y, Field_size + 1);
-                    Destroy_Line_Bonus(grid, x, y, 0, -1, y, 0);
-                }
-            }
-            if (grid[x, y].kind == Line_vertical_type)
-            {
-                if (grid[x, y].isNeed_bonus_activation)
-                {
-                    grid[x, y].isNeed_bonus_activation = false;
-                    //grid[x, y].kind = new Random().Next(Types_of_cells) + 1;
-                    Destroy_Line_Bonus(grid, x, y, 1, 0, x, Field_size + 1);
-                    Destroy_Line_Bonus(grid, x, y, -1, 0, x, 0);
-                }
+                        break;
+                    }
+                case Line_horizontal_type:
+                    {
+                        grid[x, y].isNeed_bonus_activation = false;
+                        //grid[x, y].kind = new Random().Next(Types_of_cells) + 1;
+                        Destroy_Line_Bonus(grid, x, y, 0, 1, y, Field_size + 1);
+                        Destroy_Line_Bonus(grid, x, y, 0, -1, y, 0);
+                        break;
+                    }
+                case Line_vertical_type:
+                    {
+                        grid[x, y].isNeed_bonus_activation = false;
+                        //grid[x, y].kind = new Random().Next(Types_of_cells) + 1;
+                        Destroy_Line_Bonus(grid, x, y, 1, 0, x, Field_size + 1);
+                        Destroy_Line_Bonus(grid, x, y, -1, 0, x, 0);
+                        break;
+                    }
             }
         }
 
@@ -150,11 +146,13 @@ namespace Match3_Test
         {
             for (int i = start_index; i != len; i += x1 + y1)
             {
-                if (grid[x1 == 0 ? x : i, y1 == 0 ? y : i].match == 0)
-                    grid[x1 == 0 ? x : i, y1 == 0 ? y : i].match++;
-                if (grid[x1 == 0 ? x : i, y1 == 0 ? y : i].kind > Types_of_cells + 1)
+                int x_new = (x1 == 0 ? x : i);
+                int y_new = (y1 == 0 ? y : i);
+                if (grid[x_new, y_new].match == 0)
+                    grid[x_new, y_new].match++;
+                if (grid[x_new, y_new].kind > Types_of_cells + 1)
                 {
-                    Activate_Bonus(grid, x1 == 0 ? x : i, y1 == 0 ? y : i);
+                    Activate_Bonus(grid, x_new, y_new);
                 }
             }
         }
@@ -164,21 +162,22 @@ namespace Match3_Test
         private static bool isMoving;
         private static bool isNeedBonusCheck;
         private static int click = 0;
-        private static readonly int Game_fps = 60;
-        private static readonly int Game_time = 600;
+        private const int Game_fps = 60;
+        private const int Game_time = 600;
         private static int Game_window = 0;
         private static int Game_score = 0;
         private static Vector2i pos;
         private static int score;
-        private static readonly int Field_size = 8;
-        private static readonly int Moving_animation_speed = 6;
-        private static readonly byte Deleting_animation_speed = 5;
-        private static readonly int Cell_size = 60;
-        private static readonly int Types_of_cells = 5;
-        private static readonly int Bomb_type = Types_of_cells + 2;
-        private static readonly int Bomb_radius = 1;
-        private static readonly int Line_horizontal_type = Bomb_type + 1;
-        private static readonly int Line_vertical_type = Line_horizontal_type + 1;
+        private const int Field_size = 8;
+        private const int Moving_animation_speed = 6;
+        private const byte Deleting_animation_speed = 5;
+        private const int Cell_size = 60;
+        private const int Types_of_cells = 5;
+        private const int Bomb_type = Types_of_cells + 1;
+        private const int Bomb_radius = 1;
+        private const int Line_horizontal_type = Bomb_type + 1;
+        private const int Line_vertical_type = Line_horizontal_type + 1;
+
 
         public static int Bonus_score;
 
@@ -215,7 +214,7 @@ namespace Match3_Test
 
             Line_bonus_vertical_texture.Origin = new Vector2f(0, Line_bonus_vertical_texture.GetLocalBounds().Height);
             Line_bonus_vertical_texture.Rotation = 90.0f;
-            
+
 
             Font Outfit_light_font = new Font("./Content/Fonts/Outfit-Light.ttf");
 
@@ -341,10 +340,10 @@ namespace Match3_Test
                     // mouse click
                     if (click == 1)
                     {
-                        x0 = Program.pos.X / Cell_size;
-                        y0 = Program.pos.Y / Cell_size;
+                        x0 = pos.X / Cell_size;
+                        y0 = pos.Y / Cell_size;
 
-                        if (Grid_main[y0, x0].kind > Types_of_cells + 1)
+                        if (Grid_main[y0, x0].kind > Types_of_cells)
                             isNeedBonusCheck = true;
 
                         Discharge_texture.Position = new Vector2f(x0 * Cell_size, y0 * Cell_size);
@@ -352,18 +351,16 @@ namespace Match3_Test
                     }
                     if (click == 2)
                     {
-                        x = Program.pos.X / Cell_size;
-                        y = Program.pos.Y / Cell_size;
+                        x = pos.X / Cell_size;
+                        y = pos.Y / Cell_size;
                         if (Math.Abs(x - x0) + Math.Abs(y - y0) == 1)
                         {
-                            if (Grid_main[y, x].kind > Types_of_cells + 1)
+                            if (Grid_main[y, x].kind > Types_of_cells)
                                 isNeedBonusCheck = true;
 
                             Swap(Grid_main[y0, x0], Grid_main[y, x], Grid_main.grid);
                             isSwap = true;
                             click = 0;
-
-                            
                         }
                         else click = 1;
                     }
@@ -374,7 +371,7 @@ namespace Match3_Test
                         for (int i = 1; i <= Field_size; i++)
                             for (int j = 1; j <= Field_size; j++)
                             {
-                                if (Grid_main[i, j].kind <= Types_of_cells + 1)
+                                if (Grid_main[i, j].kind <= Types_of_cells)
                                 {
                                     if (Compare_Elements_Kind(Grid_main.grid, i, j, i + 1, j))
                                         if (Compare_Elements_Kind(Grid_main.grid, i, j, i - 1, j))
@@ -388,11 +385,11 @@ namespace Match3_Test
                                     if (Compare_Elements_Kind(Grid_main.grid, i, j, i, j + 1))
                                         if (Compare_Elements_Kind(Grid_main.grid, i, j, i, j - 1))
                                             Check_Three_In_Line(Grid_main.grid, i, j, 0, 1);
-                                                /*
-                                            for (int n = -1; n <= 1; n++)
-                                            {
-                                                Grid_main.grid[i, j + n].match++;
-                                            }*/
+                                    /*
+                                for (int n = -1; n <= 1; n++)
+                                {
+                                    Grid_main.grid[i, j + n].match++;
+                                }*/
                                 }
                             }
 
@@ -458,7 +455,7 @@ namespace Match3_Test
                                 }
                             }
                     }
-                    
+
                     // Line bonus filling
                     if (!isMoving)
                     {
@@ -557,7 +554,7 @@ namespace Match3_Test
                         {
                             GridCell p = new GridCell();
                             p = Grid_main[i, j];
-                            if (p.kind <= Types_of_cells + 1)
+                            if (p.kind <= Types_of_cells)
                             {
                                 texture.TextureRect = new IntRect((p.kind - 1) * Cell_size, 0, Cell_size, Cell_size);
                                 texture.Position = new Vector2f(p.x, p.y);

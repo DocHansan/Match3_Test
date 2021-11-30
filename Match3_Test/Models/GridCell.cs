@@ -6,12 +6,12 @@ namespace Match3_Test.Models
 {
     public struct GridCell
     {
-        public int x,
-            y,
-            column,
-            row,
-            kind,
-            match;
+        public int x;
+        public int y;
+        public int column;
+        public int row;
+        public int kind;
+        public int match;
         public byte alpha;
         public bool isNeed_bonus_activation;
     }
