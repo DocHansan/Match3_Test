@@ -48,7 +48,7 @@ namespace Match3_Test.Models
         {
             Grid_main.grid[i, j].match = 0;
             Grid_main.grid[i, j].isNeed_bonus_activation = true;
-            Program.Bonus_score++;
+            ScoreCounter.Bonus_score++;
             Grid_main.grid[i, j].kind = line_bonus_type;
         }
 
@@ -71,7 +71,7 @@ namespace Match3_Test.Models
 
         static void CreateLineFromTwoCell(Grid Main_grid, int x, int y, int x1, int y1, int line_bonus_type)
         {
-            if (Main_grid.Compare_Elements_Kind(x, y, x1, y1))
+            if (Main_grid.CompareElementsKind(x, y, x1, y1))
                 if (Main_grid.grid[x, y].match == 2 && Main_grid.grid[x1, y1].match == 2)
                     LineBonus.CreateLine(Main_grid, x, y, line_bonus_type);
         }

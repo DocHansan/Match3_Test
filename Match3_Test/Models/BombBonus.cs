@@ -33,7 +33,7 @@ namespace Match3_Test.Models
                     {
                         Grid_main.grid[i, j].match = 0;
                         Grid_main.grid[i, j].isNeed_bonus_activation = true;
-                        Program.Bonus_score++;
+                        ScoreCounter.Bonus_score++;
                         Grid_main.grid[i, j].kind = BombBonus.Bomb_type;
                     }
                 }

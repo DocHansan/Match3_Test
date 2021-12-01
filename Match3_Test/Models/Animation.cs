@@ -7,8 +7,8 @@ namespace Match3_Test.Models
     static class Animation
     {
 
-        private const int Moving_animation_speed = 6;
-        private const byte Deleting_animation_speed = 10;
+        private const int Moving_animation_speed = 9;
+        private const byte Deleting_animation_speed = 12;
 
         public static bool isMoving = false;
         public static bool isSwap = false;
@@ -21,7 +21,8 @@ namespace Match3_Test.Models
                         if (Grid_main[i, j].match > 0)
                             if (Grid_main[i, j].alpha > Deleting_animation_speed)
                             {
-                                Grid_main.grid[i, j].alpha -= Deleting_animation_speed; isMoving = true;
+                                Grid_main.grid[i, j].alpha -= Deleting_animation_speed;
+                                isMoving = true;
                             }
         }
 

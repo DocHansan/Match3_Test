@@ -64,12 +64,70 @@ namespace Match3_Test.Models
             }
         }
 
-        public bool Compare_Elements_Kind(int i, int j, int i1, int j1)
+        public bool CompareElementsKind(int i, int j, int i1, int j1)
         {
             bool isEqual = false;
             if (grid[i, j].kind == grid[i1, j1].kind)
                 isEqual = true;
             return isEqual;
+        }
+
+        public void FindMatch()
+        {
+            if (!Animation.isMoving)
+            {
+                for (int i = 1; i <= Program.Field_size; i++)
+                    for (int j = 1; j <= Program.Field_size; j++)
+                    {
+                        if (grid[i, j].kind <= Program.Types_of_cells)
+                        {
+                            if (CompareElementsKind(i, j, i + 1, j))
+                                if (CompareElementsKind(i, j, i - 1, j))
+                                    CheckThreeInLine(i, j, 1, 0);
+
+                            if (CompareElementsKind(i, j, i, j + 1))
+                                if (CompareElementsKind(i, j, i, j - 1))
+                                    CheckThreeInLine(i, j, 0, 1);
+                        }
+                    }
+
+                //Upping match (for bomb)
+                for (int i = 1; i <= Program.Field_size; i++)
+                    for (int j = 1; j <= Program.Field_size; j++)
+                    {
+                        if (grid[i, j].match == 2)
+                        {
+                            if (CheckNeighborCell(i, j, i + 1, j))
+                                continue;
+
+                            if (CheckNeighborCell(i, j, i - 1, j))
+                                continue;
+
+                            if (CheckNeighborCell(i, j, i, j + 1))
+                                continue;
+
+                            if (CheckNeighborCell(i, j, i, j - 1))
+                                continue;
+                            grid[i, j].match++;
+                        }
+                    }
+            }
+        }
+
+        bool CheckNeighborCell(int x, int y, int x0, int y0)
+        {
+            if (CompareElementsKind(x, y, x0, y0))
+                if (grid[x0, y0].match >= 2)
+                    return true;
+            return false;
+        }
+
+        void CheckThreeInLine(int i, int j, int i1, int j1)
+        {
+            for (int n = -1; n <= 1; n++)
+            {
+                grid[i + i1 * n, j + j1 * n].match++;
+            }
         }
 
         public GridCell this[int index1, int index2]
