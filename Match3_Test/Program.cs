@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Match3_Test.Models;
 using SFML.Graphics;
@@ -12,6 +13,10 @@ namespace Match3_Test
 {
     class Program
     {
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
         static RenderWindow app;
         public const int Field_size = 8;
@@ -25,6 +30,9 @@ namespace Match3_Test
 
         static void Main(string[] args)
         {
+            IntPtr h = GetConsoleWindow();
+            ShowWindow(h, 0);
+
             uint width = 600,
                 height = 800;
 
