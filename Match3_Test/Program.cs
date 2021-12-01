@@ -12,24 +12,9 @@ namespace Match3_Test
 {
     class Program
     {
-        static void Swap(GridCell p1, GridCell p2, GridCell[,] grid)
-        {
-            GridCell p3 = p1;
-            p1.column = p2.column;
-            p2.column = p3.column;
-            p1.row = p2.row;
-            p2.row = p3.row;
-
-            grid[p1.row, p1.column] = p1;
-            grid[p2.row, p2.column] = p2;
-        }
-
         static bool Bounds_Check(Vector2i Mouse_pos, Vector2i Start_bounds, Vector2i End_bounds)
         {
             bool isInBounds = false;
-            //Console.Write(Start_bounds);
-            //Console.Write(Mouse_pos);
-            //Console.WriteLine(End_bounds);
             if (Start_bounds.X < Mouse_pos.X &&
                 Mouse_pos.X < End_bounds.X &&
                 Start_bounds.Y < Mouse_pos.Y &&
@@ -40,100 +25,6 @@ namespace Match3_Test
             return isInBounds;
         }
 
-        static bool Compare_Elements_Kind(GridCell[,] grid, int i, int j, int i1, int j1)
-        {
-            bool isEqual = false;
-            if (grid[i, j].kind == grid[i1, j1].kind)
-                isEqual = true;
-            return isEqual;
-        }
-
-        static void Activate_Bonus(GridCell[,] grid, int x, int y)
-        {
-            if (!grid[x, y].isNeed_bonus_activation)
-                return;
-            switch (grid[x, y].kind)
-            {
-                case Bomb_type:
-                    {
-                        grid[x, y].isNeed_bonus_activation = false;
-                        //grid[x, y].kind = new Random().Next(Types_of_cells) + 1;
-                        for (int i = x - Bomb_radius; i <= x + Bomb_radius; i++)
-                            for (int j = y - Bomb_radius; j <= y + Bomb_radius; j++)
-                            {
-                                if (grid[i, j].match == 0)
-                                    grid[i, j].match++;
-                                if (grid[i, j].kind > Types_of_cells + 1)
-                                {
-                                    Activate_Bonus(grid, i, j);
-                                }
-                            }
-                        break;
-                    }
-                case Line_horizontal_type:
-                    {
-                        grid[x, y].isNeed_bonus_activation = false;
-                        //grid[x, y].kind = new Random().Next(Types_of_cells) + 1;
-                        Destroy_Line_Bonus(grid, x, y, 0, 1, y, Field_size + 1);
-                        Destroy_Line_Bonus(grid, x, y, 0, -1, y, 0);
-                        break;
-                    }
-                case Line_vertical_type:
-                    {
-                        grid[x, y].isNeed_bonus_activation = false;
-                        //grid[x, y].kind = new Random().Next(Types_of_cells) + 1;
-                        Destroy_Line_Bonus(grid, x, y, 1, 0, x, Field_size + 1);
-                        Destroy_Line_Bonus(grid, x, y, -1, 0, x, 0);
-                        break;
-                    }
-            }
-        }
-
-        static void Fill_Line_Bonus(GridCell[,] grid, int i1, int j1, int line_bonus_type)
-        {
-            for (int i = 1; i <= Field_size; i++)
-                for (int j = 1; j <= Field_size; j++)
-                {
-                    if (Compare_Elements_Kind(grid, i, j, i + i1, j + j1))
-                        if (grid[i, j].match == 2 && grid[i + i1, j + j1].match == 2)
-                        {
-                            Create_Line_Bonus(grid, i, j, line_bonus_type);
-                            /*
-                            grid[i, j].match = 0;
-                            Bonus_score++;
-                            grid[i, j].kind = line_bonus_type;
-                            */
-                        }
-                }
-        }
-
-        static void Create_Line_Bonus(GridCell[,] grid, int i, int j, int line_bonus_type)
-        {
-            grid[i, j].match = 0;
-            grid[i, j].isNeed_bonus_activation = true;
-            Bonus_score++;
-            grid[i, j].kind = line_bonus_type;
-        }
-
-        static void Fill_Line_Bonus_On_Click_Position(GridCell[,] grid, int x, int y)
-        {
-            if (Compare_Elements_Kind(grid, x, y, x - 1, y))
-                if (grid[x, y].match == 2 && grid[x - 1, y].match == 2)
-                    Create_Line_Bonus(grid, x, y, Line_vertical_type);
-
-            if (Compare_Elements_Kind(grid, x, y, x + 1, y))
-                if (grid[x, y].match == 2 && grid[x + 1, y].match == 2)
-                    Create_Line_Bonus(grid, x, y, Line_vertical_type);
-
-            if (Compare_Elements_Kind(grid, x, y, x, y - 1))
-                if (grid[x, y].match == 2 && grid[x, y - 1].match == 2)
-                    Create_Line_Bonus(grid, x, y, Line_horizontal_type);
-
-            if (Compare_Elements_Kind(grid, x, y, x, y + 1))
-                if (grid[x, y].match == 2 && grid[x, y + 1].match == 2)
-                    Create_Line_Bonus(grid, x, y, Line_horizontal_type);
-        }
-
         static void Check_Three_In_Line(GridCell[,] grid, int i, int j, int i1, int j1)
         {
             for (int n = -1; n <= 1; n++)
@@ -142,25 +33,7 @@ namespace Match3_Test
             }
         }
 
-        static void Destroy_Line_Bonus(GridCell[,] grid, int x, int y, int x1, int y1, int start_index, int len)
-        {
-            for (int i = start_index; i != len; i += x1 + y1)
-            {
-                int x_new = (x1 == 0 ? x : i);
-                int y_new = (y1 == 0 ? y : i);
-                if (grid[x_new, y_new].match == 0)
-                    grid[x_new, y_new].match++;
-                if (grid[x_new, y_new].kind > Types_of_cells + 1)
-                {
-                    Activate_Bonus(grid, x_new, y_new);
-                }
-            }
-        }
-
         static RenderWindow app;
-        private static bool isSwap;
-        private static bool isMoving;
-        private static bool isNeedBonusCheck;
         private static int click = 0;
         private const int Game_fps = 60;
         private const int Game_time = 600;
@@ -168,18 +41,10 @@ namespace Match3_Test
         private static int Game_score = 0;
         private static Vector2i pos;
         private static int score;
-        private const int Field_size = 8;
-        private const int Moving_animation_speed = 6;
-        private const byte Deleting_animation_speed = 5;
-        private const int Cell_size = 60;
-        private const int Types_of_cells = 5;
-        private const int Bomb_type = Types_of_cells + 1;
-        private const int Bomb_radius = 1;
-        private const int Line_horizontal_type = Bomb_type + 1;
-        private const int Line_vertical_type = Line_horizontal_type + 1;
-
-
-        public static int Bonus_score;
+        public const int Field_size = 8;
+        public const int Cell_size = 60;
+        public const int Types_of_cells = 4;
+        public static int Bonus_score = 0;
 
         static void Main(string[] args)
         {
@@ -195,25 +60,7 @@ namespace Match3_Test
             app.MouseButtonPressed += App_MouseButtonPressed;
             app.Resized += App_Resized;
 
-            Texture t1 = new Texture("./Content/images/1.png");
-            Texture Play_button = new Texture("./Content/images/Play_button.png");
-            Texture Ok_button = new Texture("./Content/images/Ok_button.png");
-            Texture Game_over = new Texture("./Content/images/Game_over.png");
-            Texture Discharge = new Texture("./Content/images/Discharge.png");
-            Texture Bomb = new Texture("./Content/images/Bomb.png");
-            Texture Line_bonus = new Texture("./Content/images/Line_Bonus.png");
-
-            Sprite texture = new Sprite(t1);
-            Sprite Play_button_texture = new Sprite(Play_button);
-            Sprite Ok_button_texture = new Sprite(Ok_button);
-            Sprite Game_over_texture = new Sprite(Game_over);
-            Sprite Discharge_texture = new Sprite(Discharge);
-            Sprite Bomb_texture = new Sprite(Bomb);
-            Sprite Line_bonus_horizontal_texture = new Sprite(Line_bonus);
-            Sprite Line_bonus_vertical_texture = new Sprite(Line_bonus);
-
-            Line_bonus_vertical_texture.Origin = new Vector2f(0, Line_bonus_vertical_texture.GetLocalBounds().Height);
-            Line_bonus_vertical_texture.Rotation = 90.0f;
+            ElementSpriteStorage Sprite_storage = new ElementSpriteStorage();
 
 
             Font Outfit_light_font = new Font("./Content/Fonts/Outfit-Light.ttf");
@@ -238,51 +85,12 @@ namespace Match3_Test
             White_rextangle.FillColor = new Color(Color.White);
             White_rextangle.Position = new Vector2f(Cell_size, 0);
 
-
-
-            //Console.WriteLine(Play_button_texture.GetLocalBounds());
-
             Vector2i Button_pos = new Vector2i(150, 200);
-            Vector2i Button_size = new Vector2i((int)Play_button_texture.GetLocalBounds().Width, (int)Play_button_texture.GetLocalBounds().Height);
+            Vector2i Button_size = new Vector2i((int)Sprite_storage.Play_button_sprite.GetLocalBounds().Width, (int)Sprite_storage.Play_button_sprite.GetLocalBounds().Height);
 
-            Grid Grid_main = new Grid();
+            Grid Grid_main = new Grid(Field_size, Cell_size, Types_of_cells);
 
             Stopwatch Time_Checker = new Stopwatch();
-
-
-
-            //for (int i = 1; i <= Field_size; i++)
-            //{
-            //    for (int j = 1; j <= Field_size; j++)
-            //    {
-            //        Console.Write(grid[i, j].x);
-            //        Console.Write(grid[i, j].y);
-            //        Console.Write(grid[i, j].column);
-            //        Console.Write(grid[i, j].row);
-            //        Console.Write(grid[i, j].kind);
-            //        Console.Write(grid[i, j].match);
-            //        Console.Write(grid[i, j].alpha);
-            //        Console.WriteLine("\n");
-            //    }
-            //    Console.WriteLine("\n");
-            //}
-
-
-            //for (int i = 1; i <= Field_size; i++)
-            //{
-            //    for (int j = 1; j <= Field_size; j++)
-            //    {
-            //        Console.Write(grid[i, j].x + " ");
-            //        Console.Write(grid[i, j].y + " ");
-            //        Console.Write(grid[i, j].column + " ");
-            //        Console.Write(grid[i, j].row + " ");
-            //        Console.Write(grid[i, j].kind + " ");
-            //        Console.Write(grid[i, j].match + " ");
-            //        Console.Write(grid[i, j].alpha + " ");
-            //        Console.WriteLine("\n");
-            //    }
-            //    Console.WriteLine("\n");
-            //}
 
             int x0 = 0,
                 y0 = 0,
@@ -297,19 +105,17 @@ namespace Match3_Test
 
                 if (Game_window == 0)
                 {
-                    Play_button_texture.Position = (Vector2f)Button_pos;
-                    app.Draw(Play_button_texture);
-                    //Console.WriteLine(Game_window);
+                    Sprite_storage.Play_button_sprite.Position = (Vector2f)Button_pos;
+                    app.Draw(Sprite_storage.Play_button_sprite);
                     if (click == 1)
                     {
-                        //Console.WriteLine(Bounds_Check(pos, Button_pos, Button_size));
                         if (Bounds_Check(pos, Button_pos, Button_pos + Button_size))
                         {
                             Game_window = 1;
                             Game_score = 0;
                             TimerCallback Game_timer = new TimerCallback(End_game);
                             Timer timer = new Timer(Game_timer, null, Game_time * 1000, 0);
-                            Grid_main.Create_Grid(Field_size, Cell_size, Types_of_cells);
+                            Grid_main = new Grid(Field_size, Cell_size, Types_of_cells);
 
                             Time_Checker.Restart();
                         }
@@ -319,13 +125,12 @@ namespace Match3_Test
                 }
                 if (Game_window == 2)
                 {
-                    Ok_button_texture.Position = (Vector2f)Button_pos;
-                    Game_over_texture.Position = ((Vector2f)Button_pos) + new Vector2f(0, -80);
-                    app.Draw(Ok_button_texture);
-                    app.Draw(Game_over_texture);
+                    Sprite_storage.Ok_button_sprite.Position = (Vector2f)Button_pos;
+                    Sprite_storage.Game_over_sprite.Position = ((Vector2f)Button_pos) + new Vector2f(0, -80);
+                    app.Draw(Sprite_storage.Ok_button_sprite);
+                    app.Draw(Sprite_storage.Game_over_sprite);
                     if (click == 1)
                     {
-                        //Console.WriteLine(Bounds_Check(pos, Button_pos, Button_size));
                         if (Bounds_Check(pos, Button_pos, Button_pos + Button_size))
                         {
                             Game_window = 0;
@@ -344,10 +149,10 @@ namespace Match3_Test
                         y0 = pos.Y / Cell_size;
 
                         if (Grid_main[y0, x0].kind > Types_of_cells)
-                            isNeedBonusCheck = true;
+                            BonusActivator.isNeedBonusCheck = true;
 
-                        Discharge_texture.Position = new Vector2f(x0 * Cell_size, y0 * Cell_size);
-                        app.Draw(Discharge_texture);
+                        Sprite_storage.Discharge_sprite.Position = new Vector2f(x0 * Cell_size, y0 * Cell_size);
+                        app.Draw(Sprite_storage.Discharge_sprite);
                     }
                     if (click == 2)
                     {
@@ -356,40 +161,30 @@ namespace Match3_Test
                         if (Math.Abs(x - x0) + Math.Abs(y - y0) == 1)
                         {
                             if (Grid_main[y, x].kind > Types_of_cells)
-                                isNeedBonusCheck = true;
+                                BonusActivator.isNeedBonusCheck = true;
 
-                            Swap(Grid_main[y0, x0], Grid_main[y, x], Grid_main.grid);
-                            isSwap = true;
+                            Grid_main.Swap(y0, x0, y, x);
+                            Animation.isSwap = true;
                             click = 0;
                         }
                         else click = 1;
                     }
 
                     //Match finding
-                    if (!isMoving)
+                    if (!Animation.isMoving)
                     {
                         for (int i = 1; i <= Field_size; i++)
                             for (int j = 1; j <= Field_size; j++)
                             {
                                 if (Grid_main[i, j].kind <= Types_of_cells)
                                 {
-                                    if (Compare_Elements_Kind(Grid_main.grid, i, j, i + 1, j))
-                                        if (Compare_Elements_Kind(Grid_main.grid, i, j, i - 1, j))
+                                    if (Grid_main.Compare_Elements_Kind(i, j, i + 1, j))
+                                        if (Grid_main.Compare_Elements_Kind(i, j, i - 1, j))
                                             Check_Three_In_Line(Grid_main.grid, i, j, 1, 0);
-                                    /*
-                                            for (int n = -1; n <= 1; n++)
-                                            {
-                                                Grid_main.grid[i + n, j].match++;
-                                            }*/
 
-                                    if (Compare_Elements_Kind(Grid_main.grid, i, j, i, j + 1))
-                                        if (Compare_Elements_Kind(Grid_main.grid, i, j, i, j - 1))
+                                    if (Grid_main.Compare_Elements_Kind(i, j, i, j + 1))
+                                        if (Grid_main.Compare_Elements_Kind(i, j, i, j - 1))
                                             Check_Three_In_Line(Grid_main.grid, i, j, 0, 1);
-                                    /*
-                                for (int n = -1; n <= 1; n++)
-                                {
-                                    Grid_main.grid[i, j + n].match++;
-                                }*/
                                 }
                             }
 
@@ -400,19 +195,19 @@ namespace Match3_Test
                                 if (Grid_main[i, j].match == 2)
                                 {
                                     //Upping for bomb
-                                    if (Compare_Elements_Kind(Grid_main.grid, i, j, i + 1, j))
+                                    if (Grid_main.Compare_Elements_Kind(i, j, i + 1, j))
                                         if (Grid_main[i + 1, j].match >= 2)
                                             continue;
 
-                                    if (Compare_Elements_Kind(Grid_main.grid, i, j, i - 1, j))
+                                    if (Grid_main.Compare_Elements_Kind(i, j, i - 1, j))
                                         if (Grid_main[i - 1, j].match >= 2)
                                             continue;
 
-                                    if (Compare_Elements_Kind(Grid_main.grid, i, j, i, j + 1))
+                                    if (Grid_main.Compare_Elements_Kind(i, j, i, j + 1))
                                         if (Grid_main[i, j + 1].match >= 2)
                                             continue;
 
-                                    if (Compare_Elements_Kind(Grid_main.grid, i, j, i, j - 1))
+                                    if (Grid_main.Compare_Elements_Kind(i, j, i, j - 1))
                                         if (Grid_main[i, j - 1].match >= 2)
                                             continue;
                                     Grid_main.grid[i, j].match++;
@@ -422,80 +217,19 @@ namespace Match3_Test
                     }
 
                     //Moving animation
-                    isMoving = false;
-                    for (int i = 1; i <= Field_size; i++)
-                        for (int j = 1; j <= Field_size; j++)
-                        {
-                            ref GridCell p = ref Grid_main.grid[i, j];
-                            int dx = 0,
-                                dy = 0;
-                            for (int n = 0; n < Moving_animation_speed; n++)
-                            {
-                                dx = p.x - p.column * Cell_size;
-                                dy = p.y - p.row * Cell_size;
-                                if (dx != 0) p.x -= dx / Math.Abs(dx);
-                                if (dy != 0) p.y -= dy / Math.Abs(dy);
-                                //Console.WriteLine(dx + " " + dy);
-                            }
-                            if (dx != 0 || dy != 0) isMoving = true;
-                        }
+                    Animation.MoveCells(Grid_main);
 
-                    // Bomb filling
-                    if (!isMoving)
-                    {
-                        for (int i = 1; i <= Field_size; i++)
-                            for (int j = 1; j <= Field_size; j++)
-                            {
-                                if (Grid_main[i, j].match >= 3)
-                                {
-                                    Grid_main.grid[i, j].match = 0;
-                                    Grid_main.grid[i, j].isNeed_bonus_activation = true;
-                                    Bonus_score++;
-                                    Grid_main.grid[i, j].kind = Bomb_type;
-                                }
-                            }
-                    }
-
-                    // Line bonus filling
-                    if (!isMoving)
-                    {
-                        //Create line bonuses for click positions
-                        if (isSwap)
-                        {
-                            Fill_Line_Bonus_On_Click_Position(Grid_main.grid, y0, x0);
-                            Fill_Line_Bonus_On_Click_Position(Grid_main.grid, y, x);
-                        }
-
-                        // Horizontal line bonus filling
-                        Fill_Line_Bonus(Grid_main.grid, 0, 1, Line_horizontal_type);
-
-                        // Vertical line bonus filling
-                        Fill_Line_Bonus(Grid_main.grid, 1, 0, Line_vertical_type);
-                    }
+                    // Create bonuses
+                    BonusCreator.CreateBonuses(Grid_main, x, y, x0, y0);
 
                     // Bonus activating
-                    if (isNeedBonusCheck && !isMoving && isSwap)
-                    {
-                        Console.WriteLine(y0.ToString() + " " + x0.ToString());
-                        Console.WriteLine(y.ToString() + " " + x.ToString());
-                        Console.WriteLine();
-                        Activate_Bonus(Grid_main.grid, y0, x0);
-                        Activate_Bonus(Grid_main.grid, y, x);
-                        isNeedBonusCheck = false;
-                    }
+                    BonusActivator.ActivateBonusesAfterClick(Grid_main, x0, y0, x, y);
 
                     //Deleting amimation
-                    if (!isMoving)
-                        for (int i = 1; i <= Field_size; i++)
-                            for (int j = 1; j <= Field_size; j++)
-                                if (Grid_main[i, j].match > 0)
-                                    if (Grid_main[i, j].alpha > Deleting_animation_speed)
-                                    {
-                                        Grid_main.grid[i, j].alpha -= Deleting_animation_speed; isMoving = true;
-                                    }
+                    Animation.DeleteCells(Grid_main);
 
                     //Get score
-                    if (!isMoving)
+                    if (!Animation.isMoving)
                     {
                         score = 0;
                         for (int i = 1; i <= 8; i++)
@@ -510,10 +244,12 @@ namespace Match3_Test
                     }
 
                     //Second swap if no match
-                    if (isSwap && !isMoving)
+                    if (Animation.isSwap && !Animation.isMoving)
                     {
                         if (score == 0)
-                            Swap(Grid_main[y0, x0], Grid_main[y, x], Grid_main.grid);
+                            Grid_main.Swap(y0, x0, y, x);
+                        // Check match by console
+                        /*
                         for (int i = 1; i <= Field_size; i++)
                         {
                             for (int j = 1; j <= Field_size; j++)
@@ -524,29 +260,12 @@ namespace Match3_Test
                             Console.WriteLine();
                         }
                         Console.WriteLine();
-
-                        isSwap = false;
+                        */
+                        Animation.isSwap = false;
                     }
 
                     //Update grid
-                    if (!isMoving)
-                    {
-                        for (int i = Field_size; i > 0; i--)
-                            for (int j = 1; j <= Field_size; j++)
-                                if (Grid_main[i, j].match > 0)
-                                    for (int n = i; n > 0; n--)
-                                        if (Grid_main.grid[n, j].match == 0) { Swap(Grid_main[n, j], Grid_main[i, j], Grid_main.grid); break; };
-
-                        for (int j = 1; j <= Field_size; j++)
-                            for (int i = Field_size, n = 0; i > 0; i--)
-                                if (Grid_main[i, j].match > 0)
-                                {
-                                    Grid_main.grid[i, j].kind = new Random().Next(Types_of_cells) + 1;
-                                    Grid_main.grid[i, j].y = -Cell_size * n++;
-                                    Grid_main.grid[i, j].match = 0;
-                                    Grid_main.grid[i, j].alpha = 255;
-                                }
-                    }
+                    Grid_main.Update_grid(!Animation.isMoving);
 
                     // draw
                     for (int i = 1; i <= Field_size; i++)
@@ -556,28 +275,28 @@ namespace Match3_Test
                             p = Grid_main[i, j];
                             if (p.kind <= Types_of_cells)
                             {
-                                texture.TextureRect = new IntRect((p.kind - 1) * Cell_size, 0, Cell_size, Cell_size);
-                                texture.Position = new Vector2f(p.x, p.y);
-                                texture.Color = new Color(255, 255, 255, p.alpha);
-                                app.Draw(texture);
+                                //texture.TextureRect = new IntRect((p.kind - 1) * Cell_size, 0, Cell_size, Cell_size);
+                                Sprite_storage.Cell_type_sprites[p.kind - 1].Position = new Vector2f(p.x, p.y);
+                                Sprite_storage.Cell_type_sprites[p.kind - 1].Color = new Color(255, 255, 255, p.alpha);
+                                app.Draw(Sprite_storage.Cell_type_sprites[p.kind - 1]);
                             }
-                            if (p.kind == Bomb_type)
+                            if (p.kind == BombBonus.Bomb_type)
                             {
-                                Bomb_texture.Position = new Vector2f(p.x, p.y);
-                                Bomb_texture.Color = new Color(255, 255, 255, p.alpha);
-                                app.Draw(Bomb_texture);
+                                Sprite_storage.Bomb_sprite.Position = new Vector2f(p.x, p.y);
+                                Sprite_storage.Bomb_sprite.Color = new Color(255, 255, 255, p.alpha);
+                                app.Draw(Sprite_storage.Bomb_sprite);
                             }
-                            if (p.kind == Line_horizontal_type)
+                            if (p.kind == LineBonus.Line_horizontal_type)
                             {
-                                Line_bonus_horizontal_texture.Position = new Vector2f(p.x, p.y);
-                                Line_bonus_horizontal_texture.Color = new Color(255, 255, 255, p.alpha);
-                                app.Draw(Line_bonus_horizontal_texture);
+                                Sprite_storage.Line_bonus_horizontal_sprite.Position = new Vector2f(p.x, p.y);
+                                Sprite_storage.Line_bonus_horizontal_sprite.Color = new Color(255, 255, 255, p.alpha);
+                                app.Draw(Sprite_storage.Line_bonus_horizontal_sprite);
                             }
-                            if (p.kind == Line_vertical_type)
+                            if (p.kind == LineBonus.Line_vertical_type)
                             {
-                                Line_bonus_vertical_texture.Position = new Vector2f(p.x, p.y);
-                                Line_bonus_vertical_texture.Color = new Color(255, 255, 255, p.alpha);
-                                app.Draw(Line_bonus_vertical_texture);
+                                Sprite_storage.Line_bonus_vertical_sprite.Position = new Vector2f(p.x, p.y);
+                                Sprite_storage.Line_bonus_vertical_sprite.Color = new Color(255, 255, 255, p.alpha);
+                                app.Draw(Sprite_storage.Line_bonus_vertical_sprite);
                             }
                         }
                     Game_score_text.DisplayedString = Game_score.ToString();
@@ -619,7 +338,7 @@ namespace Match3_Test
                         click++;
                         return;
                     }
-                    if (!isSwap && !isMoving) click++;
+                    if (!Animation.isSwap && !Animation.isMoving) click++;
                 }
                 else click = 0;
             }
@@ -628,10 +347,6 @@ namespace Match3_Test
         private static void App_Closed(object sender, EventArgs e)
         {
             app.Close();
-            //app = new RenderWindow(new VideoMode(60, 60), "Match-3 Game!");
-            //app.DispatchEvents();
-            //app.Closed += App_Closed;
-            //app.Display();
         }
     }
 }
