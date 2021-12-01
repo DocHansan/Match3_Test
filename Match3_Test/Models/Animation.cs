@@ -7,23 +7,34 @@ namespace Match3_Test.Models
     static class Animation
     {
 
-        private const int Moving_animation_speed = 9;
-        private const byte Deleting_animation_speed = 12;
+        private const int Moving_animation_speed = 7;
+        public const byte Deleting_animation_speed = 12;
+        public const byte Creating_animation_speed = Deleting_animation_speed;
 
         public static bool isMoving = false;
         public static bool isSwap = false;
 
         public static void DeleteCells(Grid Grid_main)
         {
-            if (!isMoving)
-                for (int i = 1; i <= Program.Field_size; i++)
-                    for (int j = 1; j <= Program.Field_size; j++)
-                        if (Grid_main[i, j].match > 0)
-                            if (Grid_main[i, j].alpha > Deleting_animation_speed)
-                            {
-                                Grid_main.grid[i, j].alpha -= Deleting_animation_speed;
-                                isMoving = true;
-                            }
+            for (int i = 1; i <= Program.Field_size; i++)
+                for (int j = 1; j <= Program.Field_size; j++)
+                    if (Grid_main[i, j].match > 0)
+                        if (Grid_main[i, j].alpha > Deleting_animation_speed)
+                        {
+                            Grid_main.grid[i, j].alpha -= Deleting_animation_speed;
+                            isMoving = true;
+                        }
+        }
+
+        public static void CreateBonus(Grid Grid_main)
+        {
+            for (int i = 1; i <= Program.Field_size; i++)
+                for (int j = 1; j <= Program.Field_size; j++)
+                    if (Grid_main[i, j].match == 0)
+                        if (Grid_main[i, j].alpha < 255 - Creating_animation_speed)
+                        {
+                            Grid_main.grid[i, j].alpha += Creating_animation_speed;
+                        }
         }
 
         public static void MoveCells(Grid Grid_main)

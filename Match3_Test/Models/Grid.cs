@@ -38,30 +38,27 @@ namespace Match3_Test.Models
             grid[p2.row, p2.column] = p2;
         }
 
-        public void Update_grid(bool isNot_moving)
+        public void UpdateGrid()
         {
-            if (isNot_moving)
-            {
-                int Field_size = Program.Field_size;
-                int Types_of_cells = Program.Types_of_cells;
-                int Cell_size = Program.Cell_size;
+            int Field_size = Program.Field_size;
+            int Types_of_cells = Program.Types_of_cells;
+            int Cell_size = Program.Cell_size;
 
-                for (int i = Field_size; i > 0; i--)
-                    for (int j = 1; j <= Field_size; j++)
-                        if (grid[i, j].match > 0)
-                            for (int n = i; n > 0; n--)
-                                if (grid[n, j].match == 0) { Swap(n, j, i, j); break; };
-
+            for (int i = Field_size; i > 0; i--)
                 for (int j = 1; j <= Field_size; j++)
-                    for (int i = Field_size, n = 0; i > 0; i--)
-                        if (grid[i, j].match > 0)
-                        {
-                            grid[i, j].kind = new Random().Next(Types_of_cells) + 1;
-                            grid[i, j].y = -Cell_size * n++;
-                            grid[i, j].match = 0;
-                            grid[i, j].alpha = 255;
-                        }
-            }
+                    if (grid[i, j].match > 0)
+                        for (int n = i; n > 0; n--)
+                            if (grid[n, j].match == 0) { Swap(n, j, i, j); break; };
+
+            for (int j = 1; j <= Field_size; j++)
+                for (int i = Field_size, n = 0; i > 0; i--)
+                    if (grid[i, j].match > 0)
+                    {
+                        grid[i, j].kind = new Random().Next(Types_of_cells) + 1;
+                        grid[i, j].y = -Cell_size * n++;
+                        grid[i, j].match = 0;
+                        grid[i, j].alpha = 255;
+                    }
         }
 
         public bool CompareElementsKind(int i, int j, int i1, int j1)
@@ -74,44 +71,41 @@ namespace Match3_Test.Models
 
         public void FindMatch()
         {
-            if (!Animation.isMoving)
-            {
-                for (int i = 1; i <= Program.Field_size; i++)
-                    for (int j = 1; j <= Program.Field_size; j++)
+            for (int i = 1; i <= Program.Field_size; i++)
+                for (int j = 1; j <= Program.Field_size; j++)
+                {
+                    if (grid[i, j].kind <= Program.Types_of_cells)
                     {
-                        if (grid[i, j].kind <= Program.Types_of_cells)
-                        {
-                            if (CompareElementsKind(i, j, i + 1, j))
-                                if (CompareElementsKind(i, j, i - 1, j))
-                                    CheckThreeInLine(i, j, 1, 0);
+                        if (CompareElementsKind(i, j, i + 1, j))
+                            if (CompareElementsKind(i, j, i - 1, j))
+                                CheckThreeInLine(i, j, 1, 0);
 
-                            if (CompareElementsKind(i, j, i, j + 1))
-                                if (CompareElementsKind(i, j, i, j - 1))
-                                    CheckThreeInLine(i, j, 0, 1);
-                        }
+                        if (CompareElementsKind(i, j, i, j + 1))
+                            if (CompareElementsKind(i, j, i, j - 1))
+                                CheckThreeInLine(i, j, 0, 1);
                     }
+                }
 
-                //Upping match (for bomb)
-                for (int i = 1; i <= Program.Field_size; i++)
-                    for (int j = 1; j <= Program.Field_size; j++)
+            //Upping match (for bomb)
+            for (int i = 1; i <= Program.Field_size; i++)
+                for (int j = 1; j <= Program.Field_size; j++)
+                {
+                    if (grid[i, j].match == 2)
                     {
-                        if (grid[i, j].match == 2)
-                        {
-                            if (CheckNeighborCell(i, j, i + 1, j))
-                                continue;
+                        if (CheckNeighborCell(i, j, i + 1, j))
+                            continue;
 
-                            if (CheckNeighborCell(i, j, i - 1, j))
-                                continue;
+                        if (CheckNeighborCell(i, j, i - 1, j))
+                            continue;
 
-                            if (CheckNeighborCell(i, j, i, j + 1))
-                                continue;
+                        if (CheckNeighborCell(i, j, i, j + 1))
+                            continue;
 
-                            if (CheckNeighborCell(i, j, i, j - 1))
-                                continue;
-                            grid[i, j].match++;
-                        }
+                        if (CheckNeighborCell(i, j, i, j - 1))
+                            continue;
+                        grid[i, j].match++;
                     }
-            }
+                }
         }
 
         bool CheckNeighborCell(int x, int y, int x0, int y0)

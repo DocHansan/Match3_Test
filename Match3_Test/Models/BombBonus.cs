@@ -32,6 +32,7 @@ namespace Match3_Test.Models
                     if (Grid_main[i, j].match >= 3)
                     {
                         Grid_main.grid[i, j].match = 0;
+                        Grid_main.grid[i, j].alpha = 0;
                         Grid_main.grid[i, j].isNeed_bonus_activation = true;
                         ScoreCounter.Bonus_score++;
                         Grid_main.grid[i, j].kind = BombBonus.Bomb_type;

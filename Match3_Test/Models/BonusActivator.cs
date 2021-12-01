@@ -10,12 +10,9 @@ namespace Match3_Test.Models
 
         public static void ActivateBonusesAfterClick(Grid Grid_main, int x0, int y0, int x, int y)
         {
-            if (isNeedBonusCheck && !Animation.isMoving && Animation.isSwap)
-            {
-                ActivateBonus(Grid_main, y0, x0);
-                ActivateBonus(Grid_main, y, x);
-                isNeedBonusCheck = false;
-            }
+            ActivateBonus(Grid_main, y0, x0);
+            ActivateBonus(Grid_main, y, x);
+            isNeedBonusCheck = false;
         }
 
         public static void ActivateBonus(Grid Grid_main, int x, int y)

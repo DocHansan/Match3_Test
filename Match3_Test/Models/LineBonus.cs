@@ -47,6 +47,7 @@ namespace Match3_Test.Models
         public static void CreateLine(Grid Grid_main, int i, int j, int line_bonus_type)
         {
             Grid_main.grid[i, j].match = 0;
+            Grid_main.grid[i, j].alpha = 0;
             Grid_main.grid[i, j].isNeed_bonus_activation = true;
             ScoreCounter.Bonus_score++;
             Grid_main.grid[i, j].kind = line_bonus_type;

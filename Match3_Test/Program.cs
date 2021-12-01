@@ -12,6 +12,7 @@ namespace Match3_Test
 {
     class Program
     {
+
         static RenderWindow app;
         public const int Field_size = 8;
         public const int Cell_size = 60;
@@ -121,22 +122,31 @@ namespace Match3_Test
                     }
 
                     //Match finding
-                    Grid_main.FindMatch();
+                    if (!Animation.isMoving)
+                        Grid_main.FindMatch();
 
                     //Moving animation
                     Animation.MoveCells(Grid_main);
 
                     //Create bonuses
-                    BonusCreator.CreateBonuses(Grid_main, x, y, x0, y0);
+                    if (!Animation.isMoving)
+                        BonusCreator.CreateBonuses(Grid_main, x, y, x0, y0);
 
                     //Bonus activating
-                    BonusActivator.ActivateBonusesAfterClick(Grid_main, x0, y0, x, y);
+                    if (BonusActivator.isNeedBonusCheck && !Animation.isMoving && Animation.isSwap)
+                        BonusActivator.ActivateBonusesAfterClick(Grid_main, x0, y0, x, y);
+
+                    //Creating amimation
+                    if (!Animation.isMoving)
+                        Animation.CreateBonus(Grid_main);
 
                     //Deleting amimation
-                    Animation.DeleteCells(Grid_main);
+                    if (!Animation.isMoving)
+                        Animation.DeleteCells(Grid_main);
 
                     //Get score
-                    Score_counter.CountPoints(Grid_main);
+                    if (!Animation.isMoving)
+                        Score_counter.CountPoints(Grid_main);
 
                     //Second swap if no match
                     if (Animation.isSwap && !Animation.isMoving)
@@ -147,7 +157,8 @@ namespace Match3_Test
                     }
 
                     //Update grid
-                    Grid_main.Update_grid(!Animation.isMoving);
+                    if (!Animation.isMoving)
+                        Grid_main.UpdateGrid();
 
                     //Draw
                     for (int i = 1; i <= Field_size; i++)
@@ -155,6 +166,11 @@ namespace Match3_Test
                         {
                             GridCell p = new GridCell();
                             p = Grid_main[i, j];
+                            if (p.alpha < 255 - Animation.Creating_animation_speed && p.alpha > 0 + Animation.Deleting_animation_speed)
+                            {
+                                Sprite_storage.Discharge_sprite.Position = new Vector2f(p.x, p.y);
+                                app.Draw(Sprite_storage.Discharge_sprite);
+                            }
                             if (p.kind <= Types_of_cells)
                             {
                                 Sprite_storage.Cell_type_sprites[p.kind - 1].Position = new Vector2f(p.x, p.y);
