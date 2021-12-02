@@ -72,6 +72,7 @@ namespace Match3_Test
                             TimerCallback Game_timer = new TimerCallback(End_game);
                             Timer timer = new Timer(Game_timer, null, Game_time * 1000, 0);
                             Grid_main = new Grid(Field_size, Cell_size, Types_of_cells);
+                            Grid_main.GenerateLevelGrid();
                             Time_Checker.Restart();
                         }
                         click = 0;

@@ -124,6 +124,25 @@ namespace Match3_Test.Models
             }
         }
 
+        public void GenerateLevelGrid()
+        {
+            FindMatch();
+            ScoreCounter Score_counter_start = new ScoreCounter();
+            Score_counter_start.CountPoints(this);
+            if (Score_counter_start.score != 0)
+            {
+                for (int i = 1; i <= Program.Field_size; i++)
+                    for (int j = 1; j <= Program.Field_size; j++)
+                        if (grid[i, j].match > 0)
+                        {
+                            grid[i, j].kind = new Random().Next(Program.Types_of_cells) + 1;
+                            grid[i, j].match = 0;
+                            grid[i, j].alpha = 255;
+                        }
+                GenerateLevelGrid();
+            }
+        }
+
         public GridCell this[int index1, int index2]
         {
             get
